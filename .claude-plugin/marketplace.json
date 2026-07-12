@@ -1,0 +1,31 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "flowmails-plugins",
+  "displayName": "Flowmails Plugins",
+  "description": "Official Flowmails plugins for Claude Code and the Agent Skills ecosystem.",
+  "owner": {
+    "name": "Flowmails",
+    "email": "support@flowmails.net"
+  },
+  "plugins": [
+    {
+      "name": "flowmails-sdk",
+      "source": "./",
+      "description": "Integrate Flowmails transactional email into your app. Bundles the flowmails-sdk skill — @flowmails/sdk v0.1 surface, error branching (instanceof), retry policy, runtime matrix.",
+      "author": {
+        "name": "Flowmails",
+        "email": "support@flowmails.net"
+      },
+      "homepage": "https://flowmails.net/docs",
+      "repository": "https://github.com/wms-why/flowmails-sdk-plugin",
+      "license": "MIT",
+      "keywords": [
+        "email",
+        "transactional",
+        "sdk",
+        "flowmails",
+        "cloudflare-workers"
+      ]
+    }
+  ]
+}
