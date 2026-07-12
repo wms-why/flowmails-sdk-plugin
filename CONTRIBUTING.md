@@ -10,14 +10,13 @@ This plugin wraps the [`flowmails-sdk` skill](https://github.com/wms-why/flowmai
 │   ├── plugin.json         # Claude Code plugin manifest
 │   └── marketplace.json    # Self-hosted marketplace (lists this plugin)
 ├── skills/
-│   └── flowmails-sdk/      # Bundled skill — synced from ../../skills/flowmails-sdk
+│   └── flowmails-sdk/      # git submodule → wms-why/flowmails-sdk-skill
+│                            # (same upstream as the monorepo's skills/flowmails-sdk/)
 │       ├── SKILL.md
 │       └── references/
 │           ├── errors.md
 │           ├── examples.md
 │           └── payloads.md
-├── scripts/
-│   └── sync-skill.mjs      # Pulls SKILL.md + references from the canonical submodule
 ├── SUBMISSION.md           # Draft for clau.de/plugin-directory-submission
 ├── README.md
 ├── LICENSE
@@ -26,22 +25,22 @@ This plugin wraps the [`flowmails-sdk` skill](https://github.com/wms-why/flowmai
 
 ## Sync contract
 
-The canonical skill source lives at [wms-why/flowmails-sdk-skill](https://github.com/wms-why/flowmails-sdk-skill), mounted in the platform monorepo at `skills/flowmails-sdk/` as a git submodule. The bundle in `skills/flowmails-sdk/` here is what ships to GitHub and to the community marketplace — `pnpm --filter @flowmails/sdk-plugin sync` keeps the two in lockstep.
+The canonical skill source lives at [wms-why/flowmails-sdk-skill](https://github.com/wms-why/flowmails-sdk-skill). The plugin includes it as a **git submodule** at `skills/flowmails-sdk/` — same upstream as the monorepo's `skills/flowmails-sdk/`. There is no copy/sync step; updating the bundle = bumping the submodule pointer.
 
 Any change to the public SDK surface (endpoints, request/response fields, error codes, retry policy, auth shape, or a version bump) **must** bump:
 
 1. The canonical skill at `wms-why/flowmails-sdk-skill` (push upstream).
-2. The submodule pointer at `skills/flowmails-sdk/` in this repo (`git submodule update --remote skills/flowmails-sdk && git add skills/flowmails-sdk`).
-3. The bundled skill in this repo's `skills/flowmails-sdk/` — run `pnpm --filter @flowmails/sdk-plugin sync` and commit the result.
+2. The submodule pointer in this repo: `git submodule update --remote skills/flowmails-sdk && git add skills/flowmails-sdk && git commit`.
+3. The submodule pointer at the monorepo's `skills/flowmails-sdk/` (same source — bump in lockstep with the plugin).
 4. The relevant `/docs/*` page in the [flowmails-cf](https://github.com/wms-why/flowmails-cf) platform monorepo.
 
-If you only update one of the four, agents will see drift between the canonical skill, the bundled plugin skill, and the human docs.
+If you only update one of the four, agents will see drift between the canonical skill, the plugin's bundled skill, the monorepo's bundled skill, and the human docs.
 
 ## Editing the bundled skill
 
-**Don't.** Edit the canonical source at `wms-why/flowmails-sdk-skill`, push upstream, then run `pnpm sync` to regenerate the bundle. The bundle is generated, not authored.
+**Don't.** Edit the canonical source at `wms-why/flowmails-sdk-skill`, push upstream, then bump the submodule pointers in both this repo and the monorepo. There is no copy step — `git submodule update --remote skills/flowmails-sdk` pulls the new commit, and committing the new gitlink is the only write.
 
-If you need to add a reference file (e.g. `references/auth.md`), add it to the canonical repo first, then update the `references:` array in the canonical `SKILL.md` frontmatter, push, and `pnpm sync`. The sync script copies any file in `references/` automatically.
+If you need to add a reference file (e.g. `references/auth.md`), add it to the canonical repo first, then update the `references:` array in the canonical `SKILL.md` frontmatter, push upstream. The new file ships automatically — git submodule content is opaque to this repo, so the plugin and the monorepo pick it up on the next submodule bump.
 
 ## Editing the plugin manifest
 
@@ -67,13 +66,19 @@ The submission form is just a Google Form, so `SUBMISSION.md` is the canonical c
 
 ## CI
 
-Add the drift check to your CI to fail when the bundle has drifted:
+The submodule pointer is the source of truth, so the CI checklist is:
 
 ```yaml
-- run: pnpm --filter @flowmails/sdk-plugin test
+# 1. Plugin manifest is valid
+- run: pnpm --filter @flowmails/sdk-plugin validate
+
+# 2. Submodule is in sync with the upstream skill repo's HEAD
+- run: |
+    git submodule update --remote skills/flowmails-sdk
+    git diff --quiet skills/flowmails-sdk || (echo "skills/flowmails-sdk is behind upstream — bump the submodule" && exit 1)
 ```
 
-(That's the alias for `node scripts/sync-skill.mjs --check`.)
+The second step is the drift check: if `git submodule update --remote` produces any diff, the plugin is behind the canonical skill and a maintainer needs to commit the bump. (Validates that the bundle is pointing at `heads/main` of the upstream.)
 
 For Claude Code's plugin schema validation:
 

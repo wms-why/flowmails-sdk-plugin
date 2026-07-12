@@ -88,14 +88,13 @@ For the field-by-field reference, the full error matrix, and drop-in code sample
 │   ├── plugin.json         # Claude Code plugin manifest
 │   └── marketplace.json    # Self-hosted marketplace (lists this plugin)
 ├── skills/
-│   └── flowmails-sdk/      # Bundled skill — kept in sync via scripts/sync-skill.mjs
+│   └── flowmails-sdk/      # git submodule → wms-why/flowmails-sdk-skill
+│                            # (same source as the monorepo's skills/flowmails-sdk/)
 │       ├── SKILL.md
 │       └── references/
 │           ├── errors.md
 │           ├── examples.md
 │           └── payloads.md
-├── scripts/
-│   └── sync-skill.mjs      # Pulls SKILL.md + references from ../../skills/flowmails-sdk
 ├── SUBMISSION.md           # Draft for clau.de/plugin-directory-submission
 ├── README.md               # this file
 ├── CONTRIBUTING.md
@@ -103,19 +102,20 @@ For the field-by-field reference, the full error matrix, and drop-in code sample
 └── package.json
 ```
 
-The canonical skill source lives at [wms-why/flowmails-sdk-skill](https://github.com/wms-why/flowmails-sdk-skill), mounted in this monorepo as a git submodule at `../../skills/flowmails-sdk/`. The bundled copy in `skills/flowmails-sdk/` is what ships to GitHub and to the community marketplace — `pnpm sync` keeps the two in lockstep.
+The canonical skill source lives at [`wms-why/flowmails-sdk-skill`](https://github.com/wms-why/flowmails-sdk-skill). The plugin includes it as a **git submodule** at `skills/flowmails-sdk/` (same upstream as the monorepo's `skills/flowmails-sdk/`) — there is no copy/sync step. Updating the bundle = bump the submodule pointer.
 
 ## Local development
 
 ```bash
-# From the monorepo root
-pnpm install
+# Clone (or update an existing checkout) — submodules are NOT auto-fetched
+git clone --recurse-submodules https://github.com/wms-why/flowmails-sdk-plugin.git
+# or, if you already cloned without --recurse-submodules:
+git submodule update --init --recursive
 
-# Sync the bundled skill from the canonical submodule
-pnpm --filter @flowmails/sdk-plugin sync
-
-# Drift check (used in CI)
-pnpm --filter @flowmails/sdk-plugin test
+# Pull the latest skill from the upstream skill repo
+git submodule update --remote skills/flowmails-sdk
+git add skills/flowmails-sdk
+git commit -m "chore(plugin): bump flowmails-sdk submodule to <sha>"
 
 # Validate the plugin manifest (requires claude CLI ≥ 2.1)
 pnpm --filter @flowmails/sdk-plugin validate

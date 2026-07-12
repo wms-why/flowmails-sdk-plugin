@@ -35,17 +35,6 @@ Or, for a stable URL install:
 npx skills add https://flowmails.net/skill/flowmails-sdk-skill/SKILL.md
 ```
 
-### Claude Code (plugin wrapper)
-
-For namespaced install as a Claude Code plugin (recommended for teams):
-
-```bash
-/plugin marketplace add wms-why/flowmails-sdk-plugin
-/plugin install flowmails-sdk@flowmails-plugins
-```
-
-The plugin source lives at [`wms-why/flowmails-sdk-plugin`](https://github.com/wms-why/flowmails-sdk-plugin) — it bundles this skill verbatim and adds the Claude Code plugin manifest. Keep the two in lockstep via the sync contract in `wms-why/flowmails-sdk-plugin`'s `CONTRIBUTING.md`.
-
 ## Versioning
 
 This skill tracks `@flowmails/sdk` v0.1.x. The update contract lives in
