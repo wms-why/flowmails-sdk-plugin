@@ -1,6 +1,6 @@
 # Contributing
 
-This plugin wraps the [`flowmails-sdk` skill](https://github.com/wms-why/flowmails-sdk-skill) for distribution through Claude Code and the broader Agent Skills ecosystem. The plugin adds a Claude Code manifest, a self-hosted marketplace, and a sync script — but **the bundled skill is not the source of truth**. Always edit the canonical skill first.
+This plugin wraps the [`flowmails-sdk` skill](https://github.com/wms-why/flowmails-sdk-plugin/tree/main/skills/flowmails-sdk) for distribution through Claude Code and the broader Agent Skills ecosystem. The plugin adds a Claude Code manifest, a self-hosted marketplace, and a sync script — but **the bundled skill is not the source of truth**. Always edit the canonical skill first.
 
 ## Repository layout
 
@@ -10,7 +10,7 @@ This plugin wraps the [`flowmails-sdk` skill](https://github.com/wms-why/flowmai
 │   ├── plugin.json         # Claude Code plugin manifest
 │   └── marketplace.json    # Self-hosted marketplace (lists this plugin)
 ├── skills/
-│   └── flowmails-sdk/      # git submodule → wms-why/flowmails-sdk-skill
+│   └── flowmails-sdk/      # git submodule → wms-why/flowmails-sdk-plugin (skills/ subpath)
 │                            # (same upstream as the monorepo's skills/flowmails-sdk/)
 │       ├── SKILL.md
 │       └── references/
@@ -25,20 +25,19 @@ This plugin wraps the [`flowmails-sdk` skill](https://github.com/wms-why/flowmai
 
 ## Sync contract
 
-The canonical skill source lives at [wms-why/flowmails-sdk-skill](https://github.com/wms-why/flowmails-sdk-skill). The plugin includes it as a **git submodule** at `skills/flowmails-sdk/` — same upstream as the monorepo's `skills/flowmails-sdk/`. There is no copy/sync step; updating the bundle = bumping the submodule pointer.
+The canonical skill source lives at [wms-why/flowmails-sdk-plugin](https://github.com/wms-why/flowmails-sdk-plugin/tree/main/skills/flowmails-sdk) (this repo's `skills/flowmails-sdk/` subpath). The monorepo's `apps/flowmails-sdk-plugin` submodule pulls the same content. There is no copy/sync step; updating the bundle = bumping the submodule pointer in the monorepo.
 
 Any change to the public SDK surface (endpoints, request/response fields, error codes, retry policy, auth shape, or a version bump) **must** bump:
 
-1. The canonical skill at `wms-why/flowmails-sdk-skill` (push upstream).
-2. The submodule pointer in this repo: `git submodule update --remote skills/flowmails-sdk && git add skills/flowmails-sdk && git commit`.
-3. The submodule pointer at the monorepo's `skills/flowmails-sdk/` (same source — bump in lockstep with the plugin).
-4. The relevant `/docs/*` page in the [flowmails-cf](https://github.com/wms-why/flowmails-cf) platform monorepo.
+1. The canonical skill at `skills/flowmails-sdk/` in this repo (push upstream to `wms-why/flowmails-sdk-plugin`).
+2. The submodule pointer in the monorepo's `apps/flowmails-sdk-plugin/`: `cd apps/flowmails-sdk-plugin && git pull && cd ../.. && git add apps/flowmails-sdk-plugin && git commit`.
+3. The relevant `/docs/*` page in the [flowmails-cf](https://github.com/wms-why/flowmails-cf) platform monorepo.
 
-If you only update one of the four, agents will see drift between the canonical skill, the plugin's bundled skill, the monorepo's bundled skill, and the human docs.
+If you only update one of the three, agents will see drift between the canonical skill, the monorepo's bundled skill, and the human docs.
 
 ## Editing the bundled skill
 
-**Don't.** Edit the canonical source at `wms-why/flowmails-sdk-skill`, push upstream, then bump the submodule pointers in both this repo and the monorepo. There is no copy step — `git submodule update --remote skills/flowmails-sdk` pulls the new commit, and committing the new gitlink is the only write.
+**Edit `skills/flowmails-sdk/` directly in this repo** (`wms-why/flowmails-sdk-plugin`), push upstream, then bump the monorepo's `apps/flowmails-sdk-plugin/` submodule pointer. The standalone skill repo `wms-why/flowmails-sdk-skill` is archived — do not push there.
 
 If you need to add a reference file (e.g. `references/auth.md`), add it to the canonical repo first, then update the `references:` array in the canonical `SKILL.md` frontmatter, push upstream. The new file ships automatically — git submodule content is opaque to this repo, so the plugin and the monorepo pick it up on the next submodule bump.
 

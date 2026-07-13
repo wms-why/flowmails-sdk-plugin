@@ -2,7 +2,7 @@
 
 > Distilled, machine-actionable instructions for AI agents integrating the [`@flowmails/sdk`](https://flowmails.net/docs) v0.1 — packaged as a Claude Code plugin.
 
-This repository is the **plugin wrapper** around the [`flowmails-sdk` skill](https://github.com/wms-why/flowmails-sdk-skill). The skill body (`SKILL.md` + `references/`) is the single source of truth for the public SDK surface; this repo adds the Claude Code plugin manifest, a self-hosted marketplace, and the sync tooling that keeps the bundled skill in lockstep with the canonical skill repo.
+This repository is the **plugin wrapper** around the [`flowmails-sdk` skill](https://github.com/wms-why/flowmails-sdk-plugin/tree/main/skills/flowmails-sdk). The skill body (`SKILL.md` + `references/`) is the single source of truth for the public SDK surface; this repo adds the Claude Code plugin manifest, a self-hosted marketplace, and the sync tooling that keeps the bundled skill in lockstep with the platform's `/docs/*` pages.
 
 ## What you get
 
@@ -28,12 +28,10 @@ claude --plugin-dir /path/to/flowmails-sdk-plugin
 
 ### Claude Code (raw skill via skills.sh)
 
-The plugin bundles the skill, but if you only want the bare skill (no plugin wrapper), skills.sh installs it directly:
+The plugin bundles the skill, but if you only want the bare skill (no plugin wrapper), skills.sh installs it directly. The canonical install command is kept in lockstep with `apps/web/app/routes/docs/ai-agents.tsx` in the platform monorepo:
 
 ```bash
-npx skills add wms-why/flowmails-sdk-skill
-# or pin to a stable URL
-npx skills add https://flowmails.net/skill/flowmails-sdk-skill/SKILL.md
+npx skills add wms-why/flowmails-sdk-plugin@flowmails-sdk
 ```
 
 ### Other Agent Skills clients
@@ -57,8 +55,8 @@ The bundled skill follows the [Agent Skills spec](https://agentskills.io), so an
 | **Trae** | drop into `.trae/skills/` | [docs](https://www.trae.ai/blog/trae_tutorial_0115) |
 | **Qodo** | drop into `.qodo/skills/` | [docs](https://www.qodo.ai/blog/how-i-use-qodos-agent-skills-to-auto-fix-issues-in-pull-requests/) |
 | **Laravel Boost** | drop into `boost/skills/` | [docs](https://laravel.com/docs/12.x/boost#agent-skills) |
-| **Factory** | `factory skills add wms-why/flowmails-sdk-skill` | [docs](https://docs.factory.ai/cli/configuration/skills) |
-| **skills.sh** (registry) | `npx skills add wms-why/flowmails-sdk-skill` | [registry](https://skills.sh) |
+| **Factory** | `factory skills add wms-why/flowmails-sdk-plugin` | [docs](https://docs.factory.ai/cli/configuration/skills) |
+| **skills.sh** (registry) | `npx skills add wms-why/flowmails-sdk-plugin@flowmails-sdk` | [registry](https://skills.sh) |
 
 A full list of compatible clients lives at [agentskills.io/clients](https://agentskills.io/clients).
 
@@ -88,8 +86,7 @@ For the field-by-field reference, the full error matrix, and drop-in code sample
 │   ├── plugin.json         # Claude Code plugin manifest
 │   └── marketplace.json    # Self-hosted marketplace (lists this plugin)
 ├── skills/
-│   └── flowmails-sdk/      # git submodule → wms-why/flowmails-sdk-skill
-│                            # (same source as the monorepo's skills/flowmails-sdk/)
+│   └── flowmails-sdk/      # canonical skill source (same content as the monorepo's skills/flowmails-sdk/)
 │       ├── SKILL.md
 │       └── references/
 │           ├── errors.md
@@ -102,7 +99,7 @@ For the field-by-field reference, the full error matrix, and drop-in code sample
 └── package.json
 ```
 
-The canonical skill source lives at [`wms-why/flowmails-sdk-skill`](https://github.com/wms-why/flowmails-sdk-skill). The plugin includes it as a **git submodule** at `skills/flowmails-sdk/` (same upstream as the monorepo's `skills/flowmails-sdk/`) — there is no copy/sync step. Updating the bundle = bump the submodule pointer.
+The canonical skill source lives at this repo's `skills/flowmails-sdk/` subpath. The monorepo's `apps/flowmails-sdk-plugin` submodule pulls the same content — there is no copy/sync step. Updating the bundle = bump the monorepo's submodule pointer.
 
 ## Local development
 
@@ -149,13 +146,12 @@ After approval, the plugin is pinned to a commit SHA in `anthropics/claude-plugi
 
 ## Sync contract
 
-Any change to the public SDK surface (endpoints, request/response fields, error codes, retry policy, auth shape, or a version bump) **must** bump three things in the same PR:
+Any change to the public SDK surface (endpoints, request/response fields, error codes, retry policy, auth shape, or a version bump) **must** bump two things in the same PR:
 
-1. The canonical skill at [`wms-why/flowmails-sdk-skill`](https://github.com/wms-why/flowmails-sdk-skill) (push upstream).
-2. The bundled skill in this repo's `skills/flowmails-sdk/` — `pnpm --filter @flowmails/sdk-plugin sync` regenerates it from the canonical source.
-3. The relevant `/docs/*` page in the [flowmails-cf](https://github.com/wms-why/flowmails-cf) platform monorepo.
+1. The canonical skill at this repo's `skills/flowmails-sdk/` subpath (push upstream to `wms-why/flowmails-sdk-plugin`).
+2. The relevant `/docs/*` page in the [flowmails-cf](https://github.com/wms-why/flowmails-cf) platform monorepo.
 
-If you only update one of the three, agents will see drift between the skill they read, the plugin they install, and the human docs they reference.
+The monorepo's `apps/flowmails-sdk-plugin/` is a submodule of this repo — bumping it is a one-line `git add apps/flowmails-sdk-plugin && git commit` once the upstream push lands. If you only update one of the two, agents will see drift between the skill they read, the plugin they install, and the human docs they reference.
 
 ## License
 

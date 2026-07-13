@@ -25,15 +25,16 @@ field names from memory.
 
 ## Install
 
-```bash
-npx skills add wms-why/flowmails-sdk-skill
-```
-
-Or, for a stable URL install:
+The canonical command (kept in sync with the platform's user-facing docs at
+`apps/web/app/routes/docs/ai-agents.tsx`):
 
 ```bash
-npx skills add https://flowmails.net/skill/flowmails-sdk-skill/SKILL.md
+npx skills add wms-why/flowmails-sdk-plugin@flowmails-sdk
 ```
+
+The standalone skill repo `wms-why/flowmails-sdk-skill` is archived — install
+commands pointing at it will 404. Always pin to `wms-why/flowmails-sdk-plugin`
+with the `@flowmails-sdk` skill selector.
 
 ## Versioning
 
