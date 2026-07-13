@@ -1,6 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "flowmails-sdk",
+  "version": "1.0.0",
   "displayName": "Flowmails SDK",
   "description": "Integrate Flowmails transactional email into your app via @flowmails/sdk. Bundles the flowmails-sdk skill — public SDK surface, error branching, retry policy, and runtime matrix for v0.1.",
   "author": {
