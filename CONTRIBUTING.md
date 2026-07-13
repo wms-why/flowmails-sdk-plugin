@@ -1,6 +1,6 @@
 # Contributing
 
-This plugin wraps the [`flowmails-sdk` skill](https://github.com/wms-why/flowmails-sdk-plugin/tree/main/skills/flowmails-sdk) for distribution through Claude Code and the broader Agent Skills ecosystem. The plugin adds a Claude Code manifest, a self-hosted marketplace, and a sync script — but **the bundled skill is not the source of truth**. Always edit the canonical skill first.
+This plugin wraps the [`flowmails-sdk` skill](https://github.com/wms-why/flowmails-sdk-plugin/tree/main/skills/flowmails-sdk) for distribution through Claude Code and the broader Agent Skills ecosystem. The plugin adds a Claude Code manifest and a self-hosted marketplace; the skill content under `skills/flowmails-sdk/` is the canonical source — edit it directly here, then bump the monorepo's submodule pointer to ship the change.
 
 ## Repository layout
 
@@ -10,8 +10,7 @@ This plugin wraps the [`flowmails-sdk` skill](https://github.com/wms-why/flowmai
 │   ├── plugin.json         # Claude Code plugin manifest
 │   └── marketplace.json    # Self-hosted marketplace (lists this plugin)
 ├── skills/
-│   └── flowmails-sdk/      # git submodule → wms-why/flowmails-sdk-plugin (skills/ subpath)
-│                            # (same upstream as the monorepo's skills/flowmails-sdk/)
+│   └── flowmails-sdk/      # canonical skill source (same content as the monorepo's skills/flowmails-sdk/)
 │       ├── SKILL.md
 │       └── references/
 │           ├── errors.md
@@ -25,21 +24,21 @@ This plugin wraps the [`flowmails-sdk` skill](https://github.com/wms-why/flowmai
 
 ## Sync contract
 
-The canonical skill source lives at [wms-why/flowmails-sdk-plugin](https://github.com/wms-why/flowmails-sdk-plugin/tree/main/skills/flowmails-sdk) (this repo's `skills/flowmails-sdk/` subpath). The monorepo's `apps/flowmails-sdk-plugin` submodule pulls the same content. There is no copy/sync step; updating the bundle = bumping the submodule pointer in the monorepo.
+The canonical skill source lives at this repo's `skills/flowmails-sdk/` subpath. The [flowmails-cf](https://github.com/wms-why/flowmails-cf) monorepo mounts this whole repo as a submodule at `apps/flowmails-sdk-plugin/`, so the monorepo picks up skill edits automatically on the next submodule bump — there is no inner copy step.
 
 Any change to the public SDK surface (endpoints, request/response fields, error codes, retry policy, auth shape, or a version bump) **must** bump:
 
-1. The canonical skill at `skills/flowmails-sdk/` in this repo (push upstream to `wms-why/flowmails-sdk-plugin`).
-2. The submodule pointer in the monorepo's `apps/flowmails-sdk-plugin/`: `cd apps/flowmails-sdk-plugin && git pull && cd ../.. && git add apps/flowmails-sdk-plugin && git commit`.
+1. The skill content under `skills/flowmails-sdk/` in this repo (push upstream to `wms-why/flowmails-sdk-plugin`).
+2. The submodule pointer in the monorepo: `git add apps/flowmails-sdk-plugin && git commit` once the upstream push lands.
 3. The relevant `/docs/*` page in the [flowmails-cf](https://github.com/wms-why/flowmails-cf) platform monorepo.
 
 If you only update one of the three, agents will see drift between the canonical skill, the monorepo's bundled skill, and the human docs.
 
 ## Editing the bundled skill
 
-**Edit `skills/flowmails-sdk/` directly in this repo** (`wms-why/flowmails-sdk-plugin`), push upstream, then bump the monorepo's `apps/flowmails-sdk-plugin/` submodule pointer. The standalone skill repo `wms-why/flowmails-sdk-skill` is archived — do not push there.
+**Edit `skills/flowmails-sdk/` directly in this repo**, push upstream, then bump the monorepo's `apps/flowmails-sdk-plugin/` submodule pointer. The standalone skill repo `wms-why/flowmails-sdk-skill` is archived — do not push there.
 
-If you need to add a reference file (e.g. `references/auth.md`), add it to the canonical repo first, then update the `references:` array in the canonical `SKILL.md` frontmatter, push upstream. The new file ships automatically — git submodule content is opaque to this repo, so the plugin and the monorepo pick it up on the next submodule bump.
+If you need to add a reference file (e.g. `references/auth.md`), add it under `skills/flowmails-sdk/references/` in this repo and update the `references:` array in `skills/flowmails-sdk/SKILL.md` frontmatter in the same commit. The new file ships automatically — the monorepo picks it up on the next submodule bump.
 
 ## Editing the plugin manifest
 
@@ -65,27 +64,21 @@ The submission form is just a Google Form, so `SUBMISSION.md` is the canonical c
 
 ## CI
 
-The submodule pointer is the source of truth, so the CI checklist is:
+The CI checklist validates the Claude Code plugin manifest and the skill body. This repo is not part of a pnpm workspace, so invoke `npm run validate` (or `pnpm validate` with a standalone `pnpm install`) instead of `pnpm --filter`.
 
 ```yaml
-# 1. Plugin manifest is valid
-- run: pnpm --filter @flowmails/sdk-plugin validate
+# 1. Plugin manifest is valid (requires claude CLI ≥ 2.1)
+- run: npm run validate
 
-# 2. Submodule is in sync with the upstream skill repo's HEAD
+# 2. Skill body references still resolve to real files
 - run: |
-    git submodule update --remote skills/flowmails-sdk
-    git diff --quiet skills/flowmails-sdk || (echo "skills/flowmails-sdk is behind upstream — bump the submodule" && exit 1)
+    cd skills/flowmails-sdk
+    for ref in $(yq '.references // [] | .[]' SKILL.md); do
+      test -f "references/${ref}.md" || (echo "SKILL.md references ${ref}.md which does not exist" && exit 1)
+    done
 ```
 
-The second step is the drift check: if `git submodule update --remote` produces any diff, the plugin is behind the canonical skill and a maintainer needs to commit the bump. (Validates that the bundle is pointing at `heads/main` of the upstream.)
-
-For Claude Code's plugin schema validation:
-
-```yaml
-- run: pnpm --filter @flowmails/sdk-plugin validate
-```
-
-(Requires `claude` CLI ≥ 2.1.)
+No submodule drift check is needed — the skill content lives directly in this repo, so any drift is just an out-of-date commit.
 
 ## Style
 

@@ -104,18 +104,13 @@ The canonical skill source lives at this repo's `skills/flowmails-sdk/` subpath.
 ## Local development
 
 ```bash
-# Clone (or update an existing checkout) — submodules are NOT auto-fetched
-git clone --recurse-submodules https://github.com/wms-why/flowmails-sdk-plugin.git
-# or, if you already cloned without --recurse-submodules:
-git submodule update --init --recursive
+# Plain clone — no inner submodules, no pnpm workspace
+git clone https://github.com/wms-why/flowmails-sdk-plugin.git
+cd flowmails-sdk-plugin
 
-# Pull the latest skill from the upstream skill repo
-git submodule update --remote skills/flowmails-sdk
-git add skills/flowmails-sdk
-git commit -m "chore(plugin): bump flowmails-sdk submodule to <sha>"
-
-# Validate the plugin manifest (requires claude CLI ≥ 2.1)
-pnpm --filter @flowmails/sdk-plugin validate
+# Edit the canonical skill under skills/flowmails-sdk/, then validate the
+# plugin manifest (requires claude CLI ≥ 2.1)
+npm run validate
 ```
 
 ## Publishing

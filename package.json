@@ -2,10 +2,9 @@
   "name": "@flowmails/sdk-plugin",
   "version": "0.1.0",
   "private": true,
-  "description": "Claude Code plugin wrapping the flowmails-sdk skill (git submodule). Distributes the @flowmails/sdk v0.1 machine-readable reference to Claude Code, Cursor, VS Code, and other Agent Skills clients.",
+  "description": "Claude Code plugin distributing the @flowmails/sdk v0.1 machine-readable reference to Claude Code, Cursor, VS Code, and other Agent Skills clients.",
   "scripts": {
-    "validate": "claude plugin validate .",
-    "submodule:update": "git submodule update --remote skills/flowmails-sdk"
+    "validate": "claude plugin validate ."
   },
   "engines": {
     "node": ">=18"
