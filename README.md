@@ -10,6 +10,10 @@ This repository is the **plugin wrapper** around the [`flowmails-sdk` skill](htt
 - **Plugin manifest** at `.claude-plugin/plugin.json` so Claude Code can install the skill as a namespaced plugin (`flowmails-sdk:flowmails-sdk`).
 - **Self-hosted marketplace** at `.claude-plugin/marketplace.json` so a single `git clone` is enough to ship the plugin to your team.
 
+## About Flowmails
+
+[Flowmails](https://flowmails.net) is a Cloudflare-native email platform: custom-domain mail (inbox, outbox, and routing rules) that lives in your own D1, with a REST API and webhooks on top. The dashboard, docs, and blog live at **<https://flowmails.net>** — sign up there to mint an API key and bind a domain before integrating the SDK.
+
 ## Install
 
 ### Claude Code (plugin / marketplace)
