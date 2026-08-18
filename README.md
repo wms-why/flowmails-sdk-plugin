@@ -12,7 +12,7 @@ This repository is the **plugin wrapper** around the [`flowmails-sdk` skill](htt
 
 ## About Flowmails
 
-[Flowmails](https://flowmails.net) is a self-hosted email API on Cloudflare — your inbox, outbox, and webhooks live in your own D1, no SMTP relay needed. The dashboard, docs, and blog live at **<https://flowmails.net>** — sign up there to mint an API key and bind a domain before integrating the SDK.
+[Flowmails](https://flowmails.net) is a self-hosted email platform on Cloudflare — your inbox, outbox, and webhooks live in your own D1, no SMTP relay needed. The dashboard, docs, and blog live at **<https://flowmails.net>** — sign up there to mint an API key and bind a domain before integrating the SDK.
 
 ## Install
 
