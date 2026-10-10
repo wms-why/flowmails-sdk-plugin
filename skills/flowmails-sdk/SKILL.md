@@ -185,6 +185,25 @@ example", point them at the HTML docs:
 - `/docs/errors` — error matrix, `FlowmailsError` hierarchy, retry policy
 - `/docs/roadmap` — v0.2 reads + webhooks (shapes are drafts)
 
+### Framework integration guides
+
+This skill covers the SDK. It does **not** cover frameworks that own
+an outbound-mail *hook* rather than a route handler, because those need
+wiring advice on top of a method signature. When the user's framework has
+such a hook, send them to its guide instead of improvising the wiring:
+
+- **Better Auth** → `/integrations/better-auth` — the four email seams
+  (`sendVerificationEmail`, `sendResetPassword`, `onExistingUserSignUp`,
+  `onPasswordReset`), both email templates, and the behaviours in that
+  surface that fail silently. If you are wiring Better Auth, **read this
+  before writing `auth.ts`** — four of its traps are invisible at the
+  call site: errors thrown inside a send callback are swallowed,
+  `requireEmailVerification: true` suppresses auto sign-in, redirect
+  error codes are **uppercase** (`?error=INVALID_TOKEN`, not
+  `invalid_token`), and `requestPasswordReset` requires `redirectTo`.
+
+One guide per framework at `/integrations/<framework>`.
+
 ## Versioning
 
 This skill tracks `@flowmails/sdk` v0.1.x. SDK surface and class

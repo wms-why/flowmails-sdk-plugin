@@ -82,6 +82,14 @@ For the field-by-field reference, the full error matrix, and drop-in code sample
 - `references/errors.md` — `FlowmailsError` hierarchy, the `code` matrix per class, retry policy, diagnosis table
 - `references/examples.md` — Express, Hono, Next.js (Route Handlers and Server Actions), Cloudflare Workers minimal integrations
 
+### Framework guides
+
+The skill covers the SDK itself — the call signature, the error classes, the retry policy. It does not cover frameworks that own an outbound-mail **hook** rather than a route handler, because those need wiring advice as much as a method signature.
+
+- **[Better Auth](https://flowmails.net/integrations/better-auth)** — verification and password-reset mail through the four Better Auth email seams (`sendVerificationEmail`, `sendResetPassword`, `onExistingUserSignUp`, `onPasswordReset`), the two email templates, and the behaviours in that surface that fail silently: errors thrown inside a send callback are swallowed, `requireEmailVerification: true` suppresses auto sign-in, redirect error codes are uppercase, and `/request-password-reset` is rate-limited to 3 per 60 s.
+
+More guides live at `https://flowmails.net/integrations/<framework>` — one page per runtime and framework the SDK supports.
+
 ## Repository layout
 
 ```

@@ -23,6 +23,15 @@ public SDK surface. When in doubt, read the relevant sub-reference
 and quote from it — never re-derive method names, class names, or
 field names from memory.
 
+If the framework you are wiring owns an outbound-mail **hook** rather
+than a route handler, the skill body is not sufficient on its own —
+those need framework-specific guidance. Read
+<https://flowmails.net/integrations/better-auth> before writing
+`auth.ts` for Better Auth; it documents four traps in that surface that
+are invisible at the call site (swallowed send-callback errors,
+`requireEmailVerification` suppressing auto sign-in, uppercase
+`?error=INVALID_TOKEN`, and the required `redirectTo`).
+
 ## Install
 
 The canonical command (kept in sync with the platform's user-facing docs at
