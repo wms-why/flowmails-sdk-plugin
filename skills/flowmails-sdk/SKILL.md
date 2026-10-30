@@ -423,3 +423,20 @@ additive, so v0.1 send code keeps working. Do not pull methods or
 fields from internal server types — those live in
 `@flowmails/emailworker-types` (the worker→web wire contract) and are
 not part of the public SDK contract.
+
+**The rest of v0.2**, all of it documented in this skill:
+
+| What | Where |
+|---|---|
+| The listen half — `fm.events`, `fm.messages`, `fm.waits`, `fm.addresses` | the surface table above |
+| The mailbox history — `fm.messages.search()` | the surface table above |
+| The conversation read — `fm.threads.get()` | the surface table above |
+| The connection check — `fm.me()` | the surface table above |
+| Idempotent sends — `send({ idempotencyKey })` | rule 6 and `references/errors.md` |
+| The send quota — a typed 429 carrying `limit` / `remaining` / `resetAt` | `references/errors.md` |
+
+The platform's signed outbound webhook is **not** an SDK surface:
+it is configured in the dashboard and delivers to a URL the user
+controls. The delivery-status events (`message.delivered` /
+`message.bounced`) do not exist yet — poll `fm.messages.status(id)`
+to learn a bounce.
