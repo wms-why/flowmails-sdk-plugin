@@ -1,4 +1,4 @@
-# Examples — `@flowmails/sdk` v0.1
+# Examples — `@flowmails/flowmails-sdk` v0.2
 
 All four snippets are drop-in. They assume the user has
 `FLOWMAILS_API_KEY` set in their environment. They assume the user
@@ -10,7 +10,7 @@ domain that key is bound to.
 
 ```ts
 import express from "express";
-import { Flowmails } from "@flowmails/sdk";
+import { Flowmails } from "@flowmails/flowmails-sdk";
 
 const fm = new Flowmails({ apiKey: process.env.FLOWMAILS_API_KEY! });
 
@@ -34,7 +34,7 @@ app.listen(3000);
 
 ```ts
 import { Hono } from "hono";
-import { Flowmails } from "@flowmails/sdk";
+import { Flowmails } from "@flowmails/flowmails-sdk";
 
 const fm = new Flowmails({ apiKey: process.env.FLOWMAILS_API_KEY! });
 const app = new Hono();
@@ -57,7 +57,7 @@ export default app;
 ```ts
 // (lives under app/<your-segment>/route.ts in the Next.js project)
 import { NextResponse } from "next/server";
-import { Flowmails } from "@flowmails/sdk";
+import { Flowmails } from "@flowmails/flowmails-sdk";
 
 const fm = new Flowmails({ apiKey: process.env.FLOWMAILS_API_KEY! });
 
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
 ```ts
 // app/actions/notify.ts
 "use server";
-import { Flowmails } from "@flowmails/sdk";
+import { Flowmails } from "@flowmails/flowmails-sdk";
 
 const fm = new Flowmails({ apiKey: process.env.FLOWMAILS_API_KEY! });
 
@@ -96,7 +96,7 @@ export async function notify(formData: FormData) {
 
 ```ts
 // src/index.ts
-import { Flowmails } from "@flowmails/sdk";
+import { Flowmails } from "@flowmails/flowmails-sdk";
 
 export interface Env {
   FLOWMAILS_API_KEY: string;
