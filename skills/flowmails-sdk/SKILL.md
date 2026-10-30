@@ -349,8 +349,13 @@ outside a scoped credential's scopes answers
   no key minting. Dashboard-only.
 - **Route-table editing beyond `create_address`.** Mode changes, bulk
   part edits, templates and unbinding are dashboard-only.
-- **Webhooks.** No outbound `queued → sent → bounced` webhook
-  delivery. Poll `fm.messages.status(id)` instead.
+- **Bounce detection.** A send's status is `sent` (the relay accepted
+  it) or `failed` (the relay rejected it). The vocabulary holds
+  `delivered` / `bounced` / `complained` / `delayed`, but the receive
+  worker has no DSN ingestion and never writes them.
+- **Delivery-status webhooks.** No outbound `queued → sent → bounced`
+  webhook delivery. The signed webhook fires for `message.received`
+  and `message.sent`; the delivery-status half does not exist.
 - **Per-key rate-limit headers on the read endpoints.** The send
   endpoints carry `X-Flowmails-RateLimit-Remaining` and
   `X-Flowmails-RateLimit-Reset`; `fm.messages.status()` and `fm.me()`
@@ -438,5 +443,7 @@ not part of the public SDK contract.
 The platform's signed outbound webhook is **not** an SDK surface:
 it is configured in the dashboard and delivers to a URL the user
 controls. The delivery-status events (`message.delivered` /
-`message.bounced`) do not exist yet — poll `fm.messages.status(id)`
-to learn a bounce.
+`message.bounced`) do not exist yet — and neither does bounce
+detection: the receive worker has no DSN ingestion, so a send's
+status is `sent` or `failed` and a bounce is not observable at all.
+Do not build a policy that waits for a `bounced` status.

@@ -41,7 +41,7 @@ Return value of `Flowmails.send()` on success.
 ```ts
 interface SendResult {
   id: string;         // stringified email row id (e.g. "8421")
-  status: string;     // "sent" | "delivered" | "bounced" | … | "queued"
+  status: string;     // "queued" | "sent" | "failed" (see the status note below)
   messageId?: string; // the SMTP Message-ID the relay assigned
 }
 ```
@@ -53,11 +53,22 @@ stringified for JSON safety.
 Pass it to `fm.messages.get(messageId)` to read a reply, or feed it
 back as `replyToMessageId` to answer in thread.
 
-`status` is the row's lifecycle at send time. To follow it to a
-terminal state, poll `fm.messages.status(id)`; that returns `sent` /
-`delivered` / `bounced` / `complained` / `delayed` / `failed` plus
-the relay's error string in `sendFeedback`. (Push webhooks are still
-a plan; polling is the shipped contract.)
+`status` is the row's lifecycle at send time. To follow it, poll
+`fm.messages.status(id)`; that returns `sent` (the relay accepted the
+message) or `failed` (the relay rejected it), plus the relay's error
+string in `sendFeedback`.
+
+**A bounce is not observable.** The status vocabulary also contains
+`delivered`, `bounced`, `complained` and `delayed`, and the backend
+maps them if they appear — but the receive worker has no DSN or
+bounce ingestion, so it never writes them. Do not build a retry
+policy that assumes a `bounced` status will arrive: the honest
+signal today is `failed`, and a delivery that was accepted and later
+disappears is invisible.
+
+(Push webhooks for `message.received` and `message.sent` are shipped
+— configured in the dashboard, not in the SDK. The
+delivery-status events are not.)
 
 ### Reply threading
 
@@ -193,7 +204,7 @@ not carry it. Treat the content as untrusted input.
 ```ts
 interface SendStatus {
   id: string;
-  status: string;             // sent | delivered | bounced | complained | delayed | failed | queued
+  status: string;             // "sent" | "failed" today — see the status note above
   messageId: string;          // SMTP Message-ID ("" when the relay never took it)
   sendFeedback: string | null; // the relay's error, when status is "failed"
   createdAt: string | null;
