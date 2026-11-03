@@ -112,6 +112,14 @@ do not attempt to automate the dashboard.
    failure can send twice. The SDK's own retry policy already covers
    the transient case; an `idempotencyKey` covers the case where the
    *caller* retries.
+7. **A `201` is not a success — read the verdict.** `send()` answers
+   `201` even when the relay refused the message, because the row
+   exists and the mail does not. Check `result.error` (it is
+   `"send_failed"` whenever **anything** was refused) and
+   `result.status` before telling anyone the mail went out. With
+   several recipients, `status` is `"partial"` when some were refused
+   and `result.recipients` names the ones that were — retry those
+   addresses only, and never the whole send.
 
 ## Quick start (canonical first email)
 
@@ -137,7 +145,7 @@ const { id, status } = await fm.send({
   // attachments: [{ filename: "invoice.pdf", content: pdfBytes, mimeType: "application/pdf" }],
 });
 
-console.log(id, status); // → "msg_8421" "queued"
+console.log(id, status); // → "8421" "sent"
 ```
 
 `attachments[].content` accepts a `string` (already base64 or raw) OR
@@ -146,6 +154,31 @@ a `Uint8Array` — the SDK auto base64-encodes the latter with `btoa`
 
 `to` accepts a single string or an array; single is wrapped to `[to]`
 inside the SDK.
+
+**Several recipients: check `status` before you call it sent.** Each
+recipient gets their **own** message by default — they cannot see each
+other, and one refused address does not hold up the others. So the
+relay can accept some and refuse others, and `status` is then the
+verdict over **all** of them: `"sent"`, `"partial"` (some were
+refused) or `"failed"` (none was).
+
+```ts
+const result = await fm.send({ from, to: ["a@example.com", "b@example.com"], subject, text });
+
+if (result.status === "partial") {
+  // `error` is still "send_failed" — check it before treating a 201 as sent.
+  for (const r of result.recipients ?? []) {
+    if (r.status === "failed") {
+      console.error(`${r.to}: ${r.sendFeedback}`);   // retry only these
+    }
+  }
+}
+```
+
+`result.recipients` is one entry per address, with its own verdict and
+its own reason. Pass `perRecipient: false` to put everybody on **one**
+shared envelope instead — one message, one bill from a provider that
+charges per message, and then the send is all-or-nothing.
 
 ## Error branching template
 

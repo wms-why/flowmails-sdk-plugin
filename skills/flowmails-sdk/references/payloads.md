@@ -13,6 +13,7 @@ interface SendOptions {
   from: string;                        // required, must be on bound domain
   fromName?: string;                   // optional display name
   to: string | string[];               // one recipient or an array
+  perRecipient?: boolean;              // optional, default true — one message per recipient
   replyTo?: string;                    // optional reply-to override
   subject: string;                     // required, 1..998 chars
   text?: string;                       // optional iff html present, ≤1_000_000 chars
@@ -26,6 +27,7 @@ interface SendOptions {
 | `from`        | `string`              | yes      | RFC 5322 address. Must land on the API key's bound domain — `from_domain_mismatch` otherwise. Local-part 1..64 chars. |
 | `fromName`    | `string`              | no       | Display name; the backend falls back to the local-part capitalised.                      |
 | `to`          | `string \| string[]`  | yes      | One address or an array. Single is wrapped to `[to]` inside the SDK.                   |
+| `perRecipient`| `boolean`             | no       | `true` (the backend's default) gives every recipient its own message. `false` puts them all on one shared envelope. See the note below. |
 | `replyTo`     | `string`              | no       | Optional reply-to override.                                                             |
 | `subject`     | `string`              | yes      | 1..998 chars.                                                                            |
 | `text`        | `string`              | no*      | Plain-text body. Required iff `html` is also missing. ≤1_000_000 chars.                 |
@@ -34,15 +36,36 @@ interface SendOptions {
 
 \* at least one of `text` / `html` must be a non-empty string.
 
+**`perRecipient` and the bill.** With `perRecipient: true` (the
+default) each recipient is a separate message, a separate relay call
+and a separate row — so the relay can accept some and refuse others,
+and the answer reports what happened to **each** address. A provider
+that charges per *message* charges once per recipient in this mode
+(Cloudflare bills per email; Resend already bills per address).
+`perRecipient: false` asks for one shared envelope: one message, one
+call, one bill — and then the send is all-or-nothing, because there was
+only ever one send.
+
 ## `SendResult`
 
 Return value of `Flowmails.send()` on success.
 
 ```ts
 interface SendResult {
-  id: string;         // stringified email row id (e.g. "8421")
-  status: string;     // "queued" | "sent" | "failed" (see the status note below)
-  messageId?: string; // the SMTP Message-ID the relay assigned
+  id: string;             // stringified email row id (e.g. "8421")
+  status: string;         // "sent" | "partial" | "failed" — the verdict over every recipient
+  messageId?: string;     // the SMTP Message-ID the relay assigned
+  sendFeedback?: string | null;  // the relay's own reason, when it refused
+  error?: string | null;  // "send_failed" when anything was refused, else null
+  recipients?: SendRecipientResult[];  // what happened to EACH address
+}
+
+interface SendRecipientResult {
+  to: string;             // the address this entry is about
+  id: string;             // the row that carried it
+  status: "sent" | "failed";
+  messageId?: string;
+  sendFeedback?: string | null;
 }
 ```
 
@@ -53,10 +76,17 @@ stringified for JSON safety.
 Pass it to `fm.messages.get(messageId)` to read a reply, or feed it
 back as `replyToMessageId` to answer in thread.
 
-`status` is the row's lifecycle at send time. To follow it, poll
-`fm.messages.status(id)`; that returns `sent` (the relay accepted the
-message) or `failed` (the relay rejected it), plus the relay's error
-string in `sendFeedback`.
+`status` is the verdict over **every** recipient: `"sent"` (all
+accepted), `"partial"` (some accepted, some refused) or `"failed"`
+(none accepted). `error` is `"send_failed"` whenever anything was
+refused — it is never `null` on a partial send, so "check
+`result.error` before treating a 201 as sent" stays true. The
+per-recipient truth is in `recipients`: one entry per address, with
+its own verdict and its own reason. Retry only the refused ones.
+
+To follow one message, poll `fm.messages.status(id)`; that returns
+`sent` (the relay accepted the message) or `failed` (the relay
+rejected it), plus the relay's error string in `sendFeedback`.
 
 **A bounce is not observable.** The status vocabulary also contains
 `delivered`, `bounced`, `complained` and `delayed`, and the backend
