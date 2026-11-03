@@ -1,6 +1,6 @@
 # Contributing
 
-This plugin wraps the [`flowmails-sdk` skill](https://github.com/wms-why/flowmails-sdk-plugin/tree/main/skills/flowmails-sdk) for distribution through Claude Code and the broader Agent Skills ecosystem. The plugin adds a Claude Code manifest and a self-hosted marketplace; the skill content under `skills/flowmails-sdk/` is the canonical source — edit it directly here, then bump the monorepo's submodule pointer to ship the change.
+This plugin wraps the [`flowmails-sdk` skill](https://github.com/wms-why/flowmails-sdk-plugin/tree/main/skills/flowmails-sdk) for distribution through Claude Code and the broader Agent Skills ecosystem. The plugin adds a Claude Code manifest and a marketplace the team hosts itself; the skill content under `skills/flowmails-sdk/` is the canonical source — edit it directly here, then bump the monorepo's submodule pointer to ship the change.
 
 ## Repository layout
 

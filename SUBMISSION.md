@@ -27,7 +27,7 @@ Flowmails SDK
 
 > `flowmails-sdk` is a Claude Code plugin wrapping the canonical machine-readable reference for `@flowmails/sdk` v0.1. The plugin teaches an agent the **public SDK surface only** — no raw HTTP, no internal wire types, no platform routes. It loads three on-demand sub-references (`payloads`, `errors`, `examples`) so an agent never has more than 5k tokens of instructions in context at once.
 >
-> Flowmails is a Cloudflare-native transactional email relay. The `@flowmails/sdk` package (npm) is the only supported integration surface — it owns retry, error mapping, and `Uint8Array` base64 encoding for attachments. Calling the SDK backend directly with `fetch` / `axios` / `curl` is not part of the public contract and is explicitly forbidden by the skill.
+> Flowmails is a provider-pluggable transactional email relay. The `@flowmails/sdk` package (npm) is the only supported integration surface — it owns retry, error mapping, and `Uint8Array` base64 encoding for attachments. Calling the SDK backend directly with `fetch` / `axios` / `curl` is not part of the public contract and is explicitly forbidden by the skill.
 >
 > The skill teaches six hard rules an agent must internalize:
 >

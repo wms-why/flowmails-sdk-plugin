@@ -131,7 +131,7 @@ interface FlowmailsOptions {
 | ------------ | -------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
 | `apiKey`     | `string`                   | yes      | `fm_<32+hex>`. Issued in `/dashboard/settings/api-keys`.                                       |
 | `baseURL`    | `string`                   | no       | Override the **send** origin (SDK backend). Default: production.                               |
-| `platformURL`| `string`                   | no       | Override the **listen** origin (event log / waits / message read / addresses). Default: `https://flowmails.net`. A self-hosted install sets both. |
+| `platformURL`| `string`                   | no       | Override the **listen** origin (event log / waits / message read / addresses). Default: `https://flowmails.net`. A private deployment sets both. |
 | `fetch`      | `typeof globalThis.fetch`  | no       | Inject a custom `fetch` (Workers `ctx.waitUntil`, test harnesses, custom middleware).          |
 | `maxRetries` | `number`                   | no       | Auto-retry budget on transient failures. Default `2`. Set `0` to disable.                      |
 | `requestId`  | `string`                   | no       | Optional request-id for cross-stack tracing; propagated to platform logs.                     |

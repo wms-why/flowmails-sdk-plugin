@@ -13,7 +13,7 @@ You are integrating a third-party application with the Flowmails
 platform via the official JavaScript / TypeScript SDK —
 **`@flowmails/flowmails-sdk`** on npm (the unscoped `@flowmails/sdk`
 name is **not** the published package; installing it gets you nothing).
-Flowmails is Cloudflare-native email infrastructure: it **sends**,
+Flowmails is provider-pluggable email infrastructure — inbound routing runs through the domain provider you connect, and outbound goes through the sending provider you pick per domain (Cloudflare Email Sending or Resend): it **sends**,
 it **receives** into a durable event log, and it holds a **durable
 wait** you can sleep on.
 
@@ -53,7 +53,7 @@ design, and no SDK call can do them:
 - create the Flowmails account and sign in;
 - connect a Cloudflare account;
 - add and verify a domain (the DNS records are the user's);
-- deploy the per-account receive worker;
+- deploy anything — the mail worker is a shared, platform-owned deployment;
 - mint the API key itself.
 
 Ask the human to complete
@@ -100,7 +100,7 @@ do not attempt to automate the dashboard.
    constructor option. Do not invent one. `baseURL` overrides the
    **send** origin (the SDK backend); `platformURL` overrides the
    **listen** origin (the platform) — they are two deployments, and
-   a self-hosted install must set both. (`idempotencyKey` is a
+   a private deployment must set both. (`idempotencyKey` is a
    **per-send** option, not a constructor option — see the next
    rule.)
 6. **`send` is idempotent when you give it a key.** Pass

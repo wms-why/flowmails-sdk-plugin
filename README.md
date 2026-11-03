@@ -2,7 +2,7 @@
 
 > Distilled, machine-actionable instructions for AI agents integrating the [`@flowmails/sdk`](https://flowmails.net/docs) v0.1 — packaged as a Claude Code plugin.
 
-This repository is the **plugin wrapper** around the [`flowmails-sdk` skill](https://github.com/wms-why/flowmails-sdk-plugin/tree/main/skills/flowmails-sdk). The skill body (`SKILL.md` + `references/`) is the single source of truth for the public SDK surface; this repo adds the Claude Code plugin manifest, a self-hosted marketplace, and the sync tooling that keeps the bundled skill in lockstep with the platform's `/docs/*` pages.
+This repository is the **plugin wrapper** around the [`flowmails-sdk` skill](https://github.com/wms-why/flowmails-sdk-plugin/tree/main/skills/flowmails-sdk). The skill body (`SKILL.md` + `references/`) is the single source of truth for the public SDK surface; this repo adds the Claude Code plugin manifest, a marketplace the team hosts itself, and the sync tooling that keeps the bundled skill in lockstep with the platform's `/docs/*` pages.
 
 ## What you get
 
@@ -12,7 +12,7 @@ This repository is the **plugin wrapper** around the [`flowmails-sdk` skill](htt
 
 ## About Flowmails
 
-[Flowmails](https://flowmails.net) is a self-hosted email platform on Cloudflare — your inbox, outbox, and webhooks live in your own D1, no SMTP relay needed. The dashboard, docs, and blog live at **<https://flowmails.net>** — sign up there to mint an API key and bind a domain before integrating the SDK.
+[Flowmails](https://flowmails.net) is a custom-domain email platform — your inbox, outbox, and webhooks live in the platform's own storage, isolated by domain id, with no SMTP relay to run. The dashboard, docs, and blog live at **<https://flowmails.net>** — sign up there to mint an API key and bind a domain before integrating the SDK.
 
 ## Install
 
