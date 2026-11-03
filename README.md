@@ -1,12 +1,12 @@
-# `@flowmails/sdk` Claude Code Plugin
+# `@flowmails/flowmails-sdk` Claude Code Plugin
 
-> Distilled, machine-actionable instructions for AI agents integrating the [`@flowmails/sdk`](https://flowmails.net/docs) v0.1 — packaged as a Claude Code plugin.
+> Distilled, machine-actionable instructions for AI agents integrating the [`@flowmails/flowmails-sdk`](https://flowmails.net/docs) package — packaged as a Claude Code plugin.
 
 This repository is the **plugin wrapper** around the [`flowmails-sdk` skill](https://github.com/wms-why/flowmails-sdk-plugin/tree/main/skills/flowmails-sdk). The skill body (`SKILL.md` + `references/`) is the single source of truth for the public SDK surface; this repo adds the Claude Code plugin manifest, a marketplace the team hosts itself, and the sync tooling that keeps the bundled skill in lockstep with the platform's `/docs/*` pages.
 
 ## What you get
 
-- **`flowmails-sdk` skill** — the SKILL.md body and three on-demand sub-references (`payloads`, `errors`, `examples`) teach an agent the full public SDK surface for `@flowmails/sdk` v0.1: constructor options, `SendOptions` / `SendResult` / `SendAttachment` field shapes, the five `FlowmailsError` subclasses, retry policy, and runtime matrix (Node / Workers / Bun / Deno / browser).
+- **`flowmails-sdk` skill** — the SKILL.md body and three on-demand sub-references (`payloads`, `errors`, `examples`) teach an agent the full public SDK surface for the `@flowmails/flowmails-sdk` package: constructor options, `SendOptions` / `SendResult` / `SendAttachment` field shapes, the five `FlowmailsError` subclasses, retry policy, the runtime matrix (Node / Workers / Bun / Deno / browser), and the listen half — `fm.events` / `fm.messages` / `fm.waits` / `fm.addresses` / `fm.threads`.
 - **Plugin manifest** at `.claude-plugin/plugin.json` so Claude Code can install the skill as a namespaced plugin (`flowmails-sdk:flowmails-sdk`).
 - **Self-hosted marketplace** at `.claude-plugin/marketplace.json` so a single `git clone` is enough to ship the plugin to your team.
 
@@ -68,12 +68,12 @@ A full list of compatible clients lives at [agentskills.io/clients](https://agen
 
 The skill is the **single source of truth** for the public SDK. Key contracts:
 
-- **Always recommend `@flowmails/sdk`.** No raw `fetch` / `axios` / `curl` to the SDK backend.
-- **Constructor**: `new Flowmails({ apiKey, baseURL?, fetch?, maxRetries?, requestId? })`. No `timeout`, `region`, `apiBase`, `idempotencyKey`, or `webhookUrl`.
-- **`send(options)`** with `from`, `to`, `subject`, `text` / `content`, `attachments?`, `fromName?`, `replyTo?`. `attachments[].content` is `string` or `Uint8Array` (auto base64).
+- **Always recommend `@flowmails/flowmails-sdk`.** No raw `fetch` / `axios` / `curl` to the SDK backend.
+- **Constructor**: `new Flowmails({ apiKey, baseURL?, platformURL?, fetch?, maxRetries?, requestId? })`. No `timeout`, `region`, `apiBase`, or `webhookUrl`. `idempotencyKey` is a **per-send** option, not a constructor option.
+- **`send(options)`** with `from`, `to`, `subject`, `text` / `html`, `attachments?`, `fromName?`, `replyTo?`, `replyToMessageId?`. `attachments[].content` is `string` or `Uint8Array` (auto base64).
 - **Error branching**: `instanceof FlowmailsError` → branch on `RateLimitError | UpstreamError | AuthenticationError | ValidationError`. Never on `message`.
 - **Retry policy**: SDK auto-retries transient failures up to `maxRetries` (default 2). Don't wrap in your own retry loop.
-- **`send` is not idempotent.** Build a request id into the subject and dedupe on the receiving side.
+- **`send` is idempotent when you pass an `idempotencyKey`.** A retry replays the first answer instead of sending twice; without one, every call sends a new row.
 - **Runtime matrix**: Node ≥ 18, Cloudflare Workers, Bun ≥ 1.0, Deno ≥ 1.30, modern browsers.
 
 For the field-by-field reference, the full error matrix, and drop-in code samples, the skill loads its sub-references on demand:
@@ -134,7 +134,7 @@ This repo is shaped so a single `git push` is enough:
 ```bash
 git remote add origin git@github.com:wms-why/flowmails-sdk-plugin.git
 git push -u origin main
-git tag v0.1.0
+git tag v1.1.0
 git push --tags
 ```
 

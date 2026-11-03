@@ -19,26 +19,26 @@ Flowmails SDK
 
 ## One-line description (≤ 120 chars)
 
-> Integrate Flowmails transactional email via @flowmails/sdk. Teaches agents the public SDK surface, error branching, retry policy, and runtime matrix.
+> Integrate Flowmails email via @flowmails/flowmails-sdk. Teaches the SDK surface, error branching, retry policy.
 
-*(117 chars)*
+*(111 chars)*
 
 ## Long description (≈ 300-500 words)
 
-> `flowmails-sdk` is a Claude Code plugin wrapping the canonical machine-readable reference for `@flowmails/sdk` v0.1. The plugin teaches an agent the **public SDK surface only** — no raw HTTP, no internal wire types, no platform routes. It loads three on-demand sub-references (`payloads`, `errors`, `examples`) so an agent never has more than 5k tokens of instructions in context at once.
+> `flowmails-sdk` is a Claude Code plugin wrapping the canonical machine-readable reference for the `@flowmails/flowmails-sdk` package. The plugin teaches an agent the **public SDK surface only** — no raw HTTP, no internal wire types, no platform routes. It loads three on-demand sub-references (`payloads`, `errors`, `examples`) so an agent never has more than 5k tokens of instructions in context at once.
 >
-> Flowmails is a provider-pluggable transactional email relay. The `@flowmails/sdk` package (npm) is the only supported integration surface — it owns retry, error mapping, and `Uint8Array` base64 encoding for attachments. Calling the SDK backend directly with `fetch` / `axios` / `curl` is not part of the public contract and is explicitly forbidden by the skill.
+> Flowmails is a provider-pluggable transactional email relay. The `@flowmails/flowmails-sdk` package (npm) is the only supported integration surface — it owns retry, error mapping, and `Uint8Array` base64 encoding for attachments. Calling the SDK backend directly with `fetch` / `axios` / `curl` is not part of the public contract and is explicitly forbidden by the skill.
 >
 > The skill teaches six hard rules an agent must internalize:
 >
-> 1. **Always recommend `@flowmails/sdk`.** No raw HTTP bypass.
+> 1. **Always recommend `@flowmails/flowmails-sdk`.** No raw HTTP bypass.
 > 2. **Auth is encapsulated.** The user passes `apiKey` to the `Flowmails` constructor; the SDK owns the `Authorization` header. The key is bound to exactly one of the user's registered domains, and `send()` returns a `ValidationError("from_domain_mismatch")` when the `from` address does not land on that bound domain.
 > 3. **Branch on `instanceof`, never on `message` text.** The five error classes extend `FlowmailsError` and each carries a stable `code` string.
 > 4. **Retry policy is the SDK's job.** Transient failures are retried automatically up to `maxRetries` (default 2). Don't wrap `fm.send` in your own retry loop.
-> 5. **Constructor options are exactly** `apiKey`, `baseURL?`, `fetch?`, `maxRetries?`, `requestId?`. There is no `timeout`, `region`, `apiBase`, `idempotencyKey`, or `webhookUrl` option in v0.1.
-> 6. **`send` is not idempotent.** Build a request id into the subject and dedupe on the receiving side.
+> 5. **Constructor options are exactly** `apiKey`, `baseURL?`, `platformURL?`, `fetch?`, `maxRetries?`, `requestId?`. There is no `timeout`, `region`, `apiBase`, or `webhookUrl` option. (`idempotencyKey` is a **per-send** option, not a constructor option.)
+> 6. **`send` is idempotent when you pass an `idempotencyKey`.** A retry replays the first answer instead of sending twice; without one, every call sends a new row.
 >
-> The skill also documents what the SDK does NOT do (no `messages.list`, no webhooks, no per-key rate-limit headers, no idempotency keys) so an agent doesn't fabricate capabilities that aren't shipped.
+> The skill also documents what the SDK does NOT do — no rule engine, no account onboarding, no route-table editing beyond `create_address`, no bounce detection, no delivery-status webhooks, no per-key rate-limit headers on the read endpoints — so an agent doesn't fabricate capabilities that aren't shipped.
 >
 > The plugin ships with the SKILL.md body and three Markdown references totaling ~ 1,800 lines of structured reference. No executable scripts, no MCP servers, no hooks, no network calls — the skill is pure instruction-following. There is no risk of tool misuse, file access outside the skill directory, or data exfiltration.
 
@@ -101,7 +101,7 @@ $ claude
 
 Generated `src/email.ts`:
 
-import { Flowmails } from "@flowmails/sdk";
+import { Flowmails } from "@flowmails/flowmails-sdk";
 
 export const fm = new Flowmails({
   apiKey: env.FLOWMAILS_API_KEY,
@@ -165,13 +165,13 @@ servers. The bundled skill is self-contained markdown.
 
 ## Why this should be in the community marketplace
 
-> The plugin fills a documented gap in the Agent Skills ecosystem: there is no first-party skill for integrating transactional email from Cloudflare Workers (or any runtime), and the existing email skills on skills.sh are limited to first-party Anthropic document skills (pptx/xlsx/docx/pdf). `@flowmails/sdk` has zero runtime dependencies and works in Node ≥ 18, Cloudflare Workers, Bun, Deno, and browsers — a single skill reaches a broad install base. The skill body is concise (≈ 200 lines of SKILL.md), the references are strictly on-demand, and there is no executable code path for a security reviewer to audit.
+> The plugin fills a documented gap in the Agent Skills ecosystem: there is no first-party skill for integrating transactional email from Cloudflare Workers (or any runtime), and the existing email skills on skills.sh are limited to first-party Anthropic document skills (pptx/xlsx/docx/pdf). `@flowmails/flowmails-sdk` has zero runtime dependencies and works in Node ≥ 18, Cloudflare Workers, Bun, Deno, and browsers — a single skill reaches a broad install base. The skill body is concise (≈ 200 lines of SKILL.md), the references are strictly on-demand, and there is no executable code path for a security reviewer to audit.
 
 ## Post-approval checklist (for the maintainer)
 
 After the plugin is approved and pinned in `anthropics/claude-plugins-community/.claude-plugin/marketplace.json`:
 
-- [ ] Bump the `version` in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` to match the approved SHA tag
+- [ ] Bump the `version` in `.claude-plugin/plugin.json` to match the approved SHA tag (the marketplace entry carries no version field)
 - [ ] Add a `CHANGELOG.md` entry referencing the marketplace addition
 - [ ] Cross-link from the SDK Hub at `https://flowmails.net/docs`
 - [ ] Cross-link from the [agentskills.io clients showcase](https://agentskills.io/clients) (open a PR)

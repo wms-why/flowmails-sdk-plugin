@@ -11,7 +11,7 @@
     {
       "name": "flowmails-sdk",
       "source": "./",
-      "description": "Integrate Flowmails transactional email into your app. Bundles the flowmails-sdk skill — @flowmails/sdk v0.1 surface, error branching (instanceof), retry policy, runtime matrix.",
+      "description": "Integrate Flowmails transactional email into your app. Bundles the flowmails-sdk skill — the @flowmails/flowmails-sdk package: public surface, error branching (instanceof), retry policy, runtime matrix.",
       "author": {
         "name": "Flowmails",
         "email": "support@flowmails.net"
