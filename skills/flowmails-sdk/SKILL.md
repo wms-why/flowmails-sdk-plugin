@@ -40,10 +40,10 @@ contract.
 | check the credential | `fm.me()` |
 | send exactly once on a retry | `fm.send({ idempotencyKey })` |
 
-The send half goes to the SDK backend (`sdk.flowmails.net`); the
-listen half goes to the platform (`flowmails.net`). Both accept the
-same `fm_` key. If you deploy Flowmails yourself, pass `platformURL`
-to the constructor.
+Everything goes to the SDK backend (`sdk.flowmails.net`) — the send
+half and the listen half alike. The agent platform moved there, so
+there is one host and one `fm_` key. If you deploy Flowmails
+yourself, pass `baseURL` to the constructor.
 
 ## One-time setup is the human's job, not yours
 
@@ -402,7 +402,7 @@ outside a scoped credential's scopes answers
 
 This skill (`SKILL.md` plus the sub-references below) **is** the
 canonical machine-readable source of truth for
-`@flowmails/flowmails-sdk` v0.2. Do not re-derive method names, field
+`@flowmails/flowmails-sdk` v1.0. Do not re-derive method names, field
 names, or class names
 from memory — read the relevant sub-reference and quote from it.
 
@@ -453,16 +453,23 @@ One guide per framework at `/integrations/<framework>`.
 
 ## Versioning
 
-This skill tracks `@flowmails/flowmails-sdk` **v0.2.x** — the
-release that added the listen half (`fm.events`, `fm.messages`,
-`fm.waits`, `fm.addresses`) and reply threading. The `send()` and
-error-class surface from v0.1 is unchanged; the additions are
-additive, so v0.1 send code keeps working. Do not pull methods or
-fields from internal server types — those live in
+This skill tracks `@flowmails/flowmails-sdk` **v1.0.x** — the release
+that moved the whole surface onto one host. The agent surface
+(`/api/agent/*`) used to be served by the platform worker; it is
+served by the SDK backend now, so **every** call goes to
+`sdk.flowmails.net`. The `send()` and error-class surface is
+unchanged; only the default origin moved, and the client's
+`platformURL` option now defaults to the same origin as `baseURL`.
+
+**Upgrading from v0.2**: a v0.2 client sent the listen half to
+`flowmails.net`, which no longer answers an agent route — so its
+reads 404 while its sends keep working. Upgrade the package; no code
+change is needed, because the new default is the one host. Do not
+pull methods or fields from internal server types — those live in
 `@flowmails/emailworker-types` (the worker→web wire contract) and are
 not part of the public SDK contract.
 
-**The rest of v0.2**, all of it documented in this skill:
+**The v1.0 surface**, all of it documented in this skill:
 
 | What | Where |
 |---|---|

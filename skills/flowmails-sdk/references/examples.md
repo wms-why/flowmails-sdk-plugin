@@ -1,4 +1,4 @@
-# Examples — `@flowmails/flowmails-sdk` v0.2
+# Examples — `@flowmails/flowmails-sdk` v1.0
 
 All four snippets are drop-in. They assume the user has
 `FLOWMAILS_API_KEY` set in their environment. They assume the user

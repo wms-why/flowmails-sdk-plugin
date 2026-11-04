@@ -1,7 +1,7 @@
 # `flowmails-sdk` skill
 
 Distilled, machine-actionable instructions for AI agents integrating
-the [`@flowmails/flowmails-sdk`](https://flowmails.net/docs) v0.2.
+the [`@flowmails/flowmails-sdk`](https://flowmails.net/docs) v1.0.
 
 ## For humans
 
@@ -17,7 +17,7 @@ covers ~90% of integration work).
 
 ## For agents
 
-You are integrating `@flowmails/flowmails-sdk` (v0.2). The skill body (`SKILL.md`)
+You are integrating `@flowmails/flowmails-sdk` (v1.0). The skill body (`SKILL.md`)
 plus the references under `references/` (loaded on demand) cover the
 public SDK surface. When in doubt, read the relevant sub-reference
 and quote from it — never re-derive method names, class names, or
@@ -47,6 +47,6 @@ with the `@flowmails-sdk` skill selector.
 
 ## Versioning
 
-This skill tracks `@flowmails/flowmails-sdk` v0.2.x. The update contract lives in
+This skill tracks `@flowmails/flowmails-sdk` v1.0.x. The update contract lives in
 this repo's `CONTRIBUTING.md`: any change to the public SDK surface
 bumps `SKILL.md` and `references/*.md` in the same PR.

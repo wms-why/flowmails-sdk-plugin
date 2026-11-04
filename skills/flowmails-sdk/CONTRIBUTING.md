@@ -1,6 +1,6 @@
 # Contributing
 
-This skill is a single-source-of-truth reference for AI agents integrating `@flowmails/flowmails-sdk` v0.2. It is consumed by Claude Code, Cursor, GitHub Copilot, and other skill-aware agents.
+This skill is a single-source-of-truth reference for AI agents integrating `@flowmails/flowmails-sdk` v1.0. It is consumed by Claude Code, Cursor, GitHub Copilot, and other skill-aware agents.
 
 ## Repository layout
 
@@ -20,7 +20,7 @@ The `SKILL.md` frontmatter declares `references: [payloads, errors, examples]` s
 
 ## Sync contract
 
-This skill tracks `@flowmails/flowmails-sdk` v0.2.x. Any change to the public SDK surface (endpoints, request/response fields, error codes, retry policy, auth shape, or a version bump) **must** also bump:
+This skill tracks `@flowmails/flowmails-sdk` v1.0.x. Any change to the public SDK surface (endpoints, request/response fields, error codes, retry policy, auth shape, or a version bump) **must** also bump:
 
 1. `SKILL.md` and `references/*.md` in this repo.
 2. The relevant `/docs/*` page in the [flowmails-cf](https://github.com/wms-why/flowmails-cf) platform monorepo.

@@ -1,4 +1,4 @@
-# Payloads — `@flowmails/flowmails-sdk` v0.2
+# Payloads — `@flowmails/flowmails-sdk` v1.0
 
 The three payload types exposed by the SDK. These are the public
 shapes — `Flowmails.send()` accepts `SendOptions` and returns
@@ -150,7 +150,7 @@ Constructor argument.
 interface FlowmailsOptions {
   apiKey: string;                     // required; format fm_<32+hex>
   baseURL?: string;                   // override the SEND origin (SDK backend)
-  platformURL?: string;               // override the LISTEN origin (platform)
+  platformURL?: string;               // override the listen origin (defaults to baseURL)
   fetch?: typeof globalThis.fetch;    // inject for Workers / tests
   maxRetries?: number;                // default 2; set 0 to disable
   requestId?: string;                 // optional request-id for cross-stack tracing
@@ -161,15 +161,16 @@ interface FlowmailsOptions {
 | ------------ | -------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
 | `apiKey`     | `string`                   | yes      | `fm_<32+hex>`. Issued in `/dashboard/settings/api-keys`.                                       |
 | `baseURL`    | `string`                   | no       | Override the **send** origin (SDK backend). Default: production.                               |
-| `platformURL`| `string`                   | no       | Override the **listen** origin (event log / waits / message read / addresses). Default: `https://flowmails.net`. A private deployment sets both. |
+| `platformURL`| `string`                   | no       | Override the **listen** origin (event log / waits / message read / addresses). Default: the same as `baseURL` — the whole surface is on one host. |
 | `fetch`      | `typeof globalThis.fetch`  | no       | Inject a custom `fetch` (Workers `ctx.waitUntil`, test harnesses, custom middleware).          |
 | `maxRetries` | `number`                   | no       | Auto-retry budget on transient failures. Default `2`. Set `0` to disable.                      |
 | `requestId`  | `string`                   | no       | Optional request-id for cross-stack tracing; propagated to platform logs.                     |
 
 ## Listen surface
 
-The read half of the SDK hits the **platform** origin (`platformURL`),
-not the SDK backend. Same `fm_` key.
+The read half of the SDK hits the **same** origin as the send half —
+`baseURL`, unless `platformURL` overrides it. The agent platform
+moved to the SDK backend, so there is one host. Same `fm_` key.
 
 ### `fm.events.list(opts?)` → `ListEventsResult`
 
