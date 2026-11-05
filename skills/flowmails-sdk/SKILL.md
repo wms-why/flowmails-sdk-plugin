@@ -355,7 +355,7 @@ root; deriving them yourself is how threads fork. A parent with no
 The SDK is the right choice **inside code**. Two other surfaces ship
 the same capabilities, and the user may ask for one of them by name:
 
-- **A hosted MCP server** (`mcp.flowmails.net`) speaks MCP over
+- **A hosted MCP server** (`sdk.flowmails.net/mcp`) speaks MCP over
   streamable HTTP and exposes ten tools — `list_domains`,
   `list_addresses`, `create_address`, `search_emails`, `get_email`,
   `send_email`, `get_send_status`, `wait_for_email`,
