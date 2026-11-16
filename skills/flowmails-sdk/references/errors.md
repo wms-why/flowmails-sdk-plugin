@@ -1,4 +1,4 @@
-# Errors & retries — `@flowmails/flowmails-sdk` v1.0
+# Errors & retries — `@flowmails/flowmails-sdk` v2.0
 
 Every failure thrown by `Flowmails.send()` is one of five typed
 error classes. All extend `FlowmailsError`, which extends `Error`.

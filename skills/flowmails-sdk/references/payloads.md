@@ -1,4 +1,4 @@
-# Payloads — `@flowmails/flowmails-sdk` v1.0
+# Payloads — `@flowmails/flowmails-sdk` v2.0
 
 The three payload types exposed by the SDK. These are the public
 shapes — `Flowmails.send()` accepts `SendOptions` and returns
@@ -286,15 +286,39 @@ explicit ask through `fm.messages.get(id)`. `domainId` comes from
 interface AccountInfo {
   userId: string;
   domain: string | null;      // the bound domain; null when there is none
-  workerHost: string | null;  // the per-account receive worker
   credentialType: string;     // "sdk_key" | "agent_credential"
   scopes: string[];           // what this credential may do
+  sending: AccountSendingState | null;  // may this domain actually send?
+}
+
+interface AccountSendingState {
+  canSend: boolean;      // true only when the domain can send right now
+  configured: boolean;   // is an outbound provider set up for the domain?
+  state: string;         // "ready" | "setup_required" | "unverified" |
+                         // "misconfigured" | "disabled" | "no_credential" |
+                         // "credential_rejected" | "unknown" | "error"
+  detail: string | null; // the platform's note about the verdict
+  checkedAt: number | null;  // epoch ms; null when never probed
 }
 ```
 
 The connection check: it verifies the credential and names the
 account, the bound domain and the scopes — **without sending
 anything**. `flowmails test` (the CLI) calls it.
+
+**There is no `workerHost` field.** It was removed in v2.0: the mail
+worker is one shared, platform-owned deployment reached through a
+service binding, so its address was the same string for every tenant
+and carried no per-credential information. Do not read it, and do not
+treat its absence as a misconfiguration — a credential that
+authenticates is the proof that the platform is configured.
+
+**Read `sending` with `configured` and `state`.** `configured: false`
+means sending was never set up (it is optional); a configured domain
+can still read `canSend: false` with a `state` like `setup_required` or
+`misconfigured`. `sending` is `null` when the answer is not knowable —
+no bound domain, the platform could not be read, or no row — which is
+different from "this domain cannot send".
 
 ### `fm.waits.create(opts)` → `CreateWaitResult`
 

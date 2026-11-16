@@ -402,7 +402,7 @@ outside a scoped credential's scopes answers
 
 This skill (`SKILL.md` plus the sub-references below) **is** the
 canonical machine-readable source of truth for
-`@flowmails/flowmails-sdk` v1.0. Do not re-derive method names, field
+`@flowmails/flowmails-sdk` v2.0. Do not re-derive method names, field
 names, or class names
 from memory — read the relevant sub-reference and quote from it.
 
@@ -453,13 +453,33 @@ One guide per framework at `/integrations/<framework>`.
 
 ## Versioning
 
-This skill tracks `@flowmails/flowmails-sdk` **v1.0.x** — the release
-that moved the whole surface onto one host. The agent surface
-(`/api/agent/*`) used to be served by the platform worker; it is
-served by the SDK backend now, so **every** call goes to
-`sdk.flowmails.net`. The `send()` and error-class surface is
-unchanged; only the default origin moved, and the client's
-`platformURL` option now defaults to the same origin as `baseURL`.
+This skill tracks `@flowmails/flowmails-sdk` **v2.0.x**.
+
+**v2.0 removed the worker's address.** The mail worker is one
+shared, platform-owned deployment reached through a service binding —
+it has no public address, no secret and nothing to configure. The
+address was therefore the same string for every tenant and carried no
+per-credential information, so `AccountInfo.workerHost` and
+`WorkerVersionInfo.workerHost` are **gone**. If you read either, drop
+the read — there is no replacement value. The worker's **version**
+(`workerVersion().version`) is the fact worth reporting.
+
+`GET /api/v1/worker-version` also no longer 404s on a deployment that
+publishes no address: it answers `{ version, bootstrapped, lastDeployAt,
+lastDeployError }` from the platform's own probe of the shared worker.
+
+`fm.me()` gained `sending` — the outbound half of the bound domain
+(`canSend` / `configured` / `state` / `detail` / `checkedAt`). Read it
+with `configured` and `state`: `configured: false` means sending was
+never set up, which is a different answer from "configured but
+currently broken" (that one reads `canSend: false` with a `state` like
+`setup_required` or `misconfigured`).
+
+**Upgrading from v1.0**: the `send()` and error-class surface is
+unchanged, and every call still goes to `sdk.flowmails.net` — the
+agent surface (`/api/agent/*`) moved to the SDK backend in v1.0 and
+stayed there. The only breaking change is the removed `workerHost`
+field.
 
 **Upgrading from v0.2**: a v0.2 client sent the listen half to
 `flowmails.net`, which no longer answers an agent route — so its
@@ -469,7 +489,7 @@ pull methods or fields from internal server types — those live in
 `@flowmails/emailworker-types` (the worker→web wire contract) and are
 not part of the public SDK contract.
 
-**The v1.0 surface**, all of it documented in this skill:
+**The v2.0 surface**, all of it documented in this skill:
 
 | What | Where |
 |---|---|
