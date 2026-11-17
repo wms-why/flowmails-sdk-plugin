@@ -356,12 +356,13 @@ The SDK is the right choice **inside code**. Two other surfaces ship
 the same capabilities, and the user may ask for one of them by name:
 
 - **A hosted MCP server** (`sdk.flowmails.net/mcp`) speaks MCP over
-  streamable HTTP and exposes ten tools — `list_domains`,
+  streamable HTTP and exposes twelve tools — `list_domains`,
   `list_addresses`, `create_address`, `search_emails`, `get_email`,
   `send_email`, `get_send_status`, `wait_for_email`,
-  `get_wait_status`, `list_events`. Each tool checks the
-  credential's scope before it runs. Use it when the agent harness
-  speaks MCP natively; inside a codebase, the SDK is still simpler.
+  `get_wait_status`, `list_events`, `claim_message`,
+  `complete_message`. Each tool checks the credential's scope before
+  it runs. Use it when the agent harness speaks MCP natively; inside a
+  codebase, the SDK is still simpler.
 - **A `flowmails` CLI** gives a shell the same five moves:
   `login`, `test`, `addresses`, `watch`, `wait`. `watch` and `wait`
   persist their cursor, so a disconnect never loses a message.
