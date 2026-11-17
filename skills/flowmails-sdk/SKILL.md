@@ -28,6 +28,9 @@ contract.
 | send mail | `fm.send({ from, to, subject, text })` |
 | reply in thread | `fm.send({ …, replyToMessageId })` |
 | check a sent message | `fm.messages.status(id)` |
+| take a message for processing | `fm.messages.claim(messageId, { domainId })` |
+| record how it turned out | `fm.messages.complete(messageId, { domainId, state })` |
+| read that record back | `fm.messages.listStates(domainId, { state })` |
 | list mailboxes you own | `fm.addresses.listDomains()` |
 | list a domain's addresses | `fm.addresses.list(domainId)` |
 | **create a mailbox** | `fm.addresses.create(domainId, "billing")` |
@@ -38,6 +41,7 @@ contract.
 | search the mailbox | `fm.messages.search(domainId, { q })` |
 | read a conversation | `fm.threads.get(threadId)` |
 | check the credential | `fm.me()` |
+| check the receive worker's version | `fm.workerVersion()` |
 | send exactly once on a retry | `fm.send({ idempotencyKey })` |
 
 Everything goes to the SDK backend (`sdk.flowmails.net`) — the send
@@ -356,16 +360,20 @@ The SDK is the right choice **inside code**. Two other surfaces ship
 the same capabilities, and the user may ask for one of them by name:
 
 - **A hosted MCP server** (`sdk.flowmails.net/mcp`) speaks MCP over
-  streamable HTTP and exposes twelve tools — `list_domains`,
+  streamable HTTP and exposes fourteen tools — `list_domains`,
   `list_addresses`, `create_address`, `search_emails`, `get_email`,
-  `send_email`, `get_send_status`, `wait_for_email`,
+  `get_thread`, `send_email`, `get_send_status`, `wait_for_email`,
   `get_wait_status`, `list_events`, `claim_message`,
-  `complete_message`. Each tool checks the credential's scope before
-  it runs. Use it when the agent harness speaks MCP natively; inside a
-  codebase, the SDK is still simpler.
-- **A `flowmails` CLI** gives a shell the same five moves:
-  `login`, `test`, `addresses`, `watch`, `wait`. `watch` and `wait`
-  persist their cursor, so a disconnect never loses a message.
+  `complete_message`, `list_message_states`. Each tool checks the
+  credential's scope before it runs. Use it when the agent harness
+  speaks MCP natively; inside a codebase, the SDK is still simpler.
+- **A `flowmails` CLI** gives a shell the same surface — fifteen
+  commands: `login`, `test`, `addresses`, `create-address`, `send`,
+  `read`, `search`, `watch`, `wait`, `claim`, `complete`, `states`,
+  `thread`, `send-status`, `worker-version`. `watch` and `wait`
+  persist their cursor, so a disconnect never loses a message; the
+  commands that need a domain id (`claim`, `complete`, `states`,
+  `create-address`) require `--domain` and never guess it.
 
 Both accept the same two credential types: the `fm_` SDK key
 (tenant-wide read, bound to one domain for sends) and an `agc_`
@@ -497,7 +505,9 @@ not part of the public SDK contract.
 | The listen half — `fm.events`, `fm.messages`, `fm.waits`, `fm.addresses` | the surface table above |
 | The mailbox history — `fm.messages.search()` | the surface table above |
 | The conversation read — `fm.threads.get()` | the surface table above |
+| The agent's own record — `fm.messages.claim()` / `fm.messages.complete()` / `fm.messages.listStates()` | the surface table above |
 | The connection check — `fm.me()` | the surface table above |
+| The receive worker's version — `fm.workerVersion()` | the surface table above |
 | Idempotent sends — `send({ idempotencyKey })` | rule 6 and `references/errors.md` |
 | The send quota — a typed 429 carrying `limit` / `remaining` / `resetAt` | `references/errors.md` |
 
