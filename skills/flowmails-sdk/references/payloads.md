@@ -25,7 +25,7 @@ interface SendOptions {
 | Field         | Type                  | Required | Notes                                                                                   |
 | ------------- | --------------------- | -------- | --------------------------------------------------------------------------------------- |
 | `from`        | `string`              | yes      | RFC 5322 address. Must land on the API key's bound domain — `from_domain_mismatch` otherwise. Local-part 1..64 chars. |
-| `fromName`    | `string`              | no       | Display name; the backend falls back to the local-part capitalised.                      |
+| `fromName`    | `string`              | no       | Display name; when absent the backend stores the address's local part verbatim (no capitalisation). |
 | `to`          | `string \| string[]`  | yes      | One address or an array. Single is wrapped to `[to]` inside the SDK.                   |
 | `perRecipient`| `boolean`             | no       | `true` (the backend's default) gives every recipient its own message. `false` puts them all on one shared envelope. See the note below. |
 | `replyTo`     | `string`              | no       | Optional reply-to override.                                                             |
